@@ -95,9 +95,22 @@ bool TcpServer::start() {
 void TcpServer::stop() {
     running_ = false;
     if (listen_sock_ != INVALID_SOCK) {
+        shutdown(listen_sock_, SHUT_RDWR_COMPAT);
         close_socket(listen_sock_);
         listen_sock_ = INVALID_SOCK;
     }
+
+    // Shutdown all active client sockets so their blocking recv() calls
+    // return immediately instead of hanging until the remote end closes.
+    {
+        std::lock_guard<std::mutex> lock(clients_mutex_);
+        for (auto sock : active_client_sockets_) {
+            shutdown(sock, SHUT_RDWR_COMPAT);
+            close_socket(sock);
+        }
+        active_client_sockets_.clear();
+    }
+
     if (accept_thread_.joinable()) {
         accept_thread_.join();
     }
@@ -133,6 +146,7 @@ void TcpServer::accept_loop() {
                 }),
             client_threads_.end()
         );
+        active_client_sockets_.push_back(client);
         client_threads_.emplace_back(&TcpServer::client_loop, this, client);
     }
 }
@@ -146,6 +160,14 @@ void TcpServer::client_loop(socket_t client_sock) {
         if (!framing::write_message(client_sock, response)) break;
     }
     close_socket(client_sock);
+
+    // Remove from active set
+    {
+        std::lock_guard<std::mutex> lock(clients_mutex_);
+        active_client_sockets_.erase(
+            std::remove(active_client_sockets_.begin(), active_client_sockets_.end(), client_sock),
+            active_client_sockets_.end());
+    }
 }
 
 } // namespace reaserve

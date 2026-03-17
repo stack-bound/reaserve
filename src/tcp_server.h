@@ -44,6 +44,7 @@ private:
     socket_t listen_sock_ = INVALID_SOCK;
     std::thread accept_thread_;
     std::vector<std::thread> client_threads_;
+    std::vector<socket_t> active_client_sockets_;
     std::mutex clients_mutex_;
 };
 

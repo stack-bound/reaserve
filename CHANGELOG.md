@@ -5,6 +5,12 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ## [staging]
 
 
+## [0.1.1] - 2026-03-17
+### Fixed
+- Fix REAPER hanging on exit due to client TCP sockets not being shut down during server stop, causing blocking `recv()` calls in client threads to never return
+- Unregister timer callback (`-timer`) during plugin unload to prevent use-after-free of destroyed globals
+- Drain pending command queue on shutdown so in-flight futures resolve instead of blocking indefinitely
+
 ## [0.1.0] - 2026-03-17
 ### Added
 - Initial Build. Artefacts are built for Linux, Windows, and macOS and published to GitHub releases.

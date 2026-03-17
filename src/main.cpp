@@ -81,10 +81,21 @@ REAPER_PLUGIN_DLL_EXPORT int ReaperPluginEntry(
     (void)hInstance;
 
     if (!rec) {
-        // Unloading
+        // Unloading — order matters to avoid deadlock:
+        // 1. Unregister timer first so no new commands are processed
+        reaserve::api::plugin_register("-timer", (void*)timer_callback);
+
+        // 2. Stop server (closes sockets, joins threads)
         if (g_server) {
             g_server->stop();
             g_server.reset();
+        }
+
+        // 3. Drain any remaining commands so their futures don't block
+        while (auto cmd = g_queue.try_pop()) {
+            cmd->response.set_value(
+                reaserve::make_error(cmd->id, reaserve::ERR_TIMEOUT,
+                    "Plugin shutting down"));
         }
         return 0;
     }

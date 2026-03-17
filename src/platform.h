@@ -5,6 +5,7 @@
     #include <ws2tcpip.h>
     using socket_t = SOCKET;
     constexpr socket_t INVALID_SOCK = INVALID_SOCKET;
+    constexpr int SHUT_RDWR_COMPAT = SD_BOTH;
     inline int close_socket(socket_t s) { return closesocket(s); }
     inline bool init_sockets() {
         WSADATA wsa;
@@ -19,6 +20,7 @@
     #include <cerrno>
     using socket_t = int;
     constexpr socket_t INVALID_SOCK = -1;
+    constexpr int SHUT_RDWR_COMPAT = SHUT_RDWR;
     inline int close_socket(socket_t s) { return close(s); }
     inline bool init_sockets() { return true; }
     inline void cleanup_sockets() {}

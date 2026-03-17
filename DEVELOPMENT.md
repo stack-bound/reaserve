@@ -81,7 +81,7 @@ Triggered by pushing a `v*` tag. Builds and tests all three platforms, then crea
 
 ### Making a Release
 
-```bash
+```
 # 1. Bump version in CMakeLists.txt
 #    project(reaserve VERSION 0.2.0 LANGUAGES CXX)
 

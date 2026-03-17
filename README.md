@@ -4,6 +4,9 @@ A standalone C++ REAPER extension plugin that exposes common REAPER operations o
 
 Control REAPER from any language — Python, Go, Node.js, Rust, or anything that can open a TCP socket.
 
+This project ahs been built to help facilitate AI integration with REAPER, but can be used for any remote control use case. This plugin does not require a "file based bridge" or for the http server to be enabled. It can execute commands and return results entirely over TCP.
+
+
 ## Installation
 
 1. Download `reaper_reaserve` for your platform from [Releases](../../releases)
@@ -36,7 +39,7 @@ python examples/python_client.py
 go run examples/go_client.go
 ```
 
-If you have installed hte plugin correctly, both should print the JSON-RPC response:
+If you have installed hte plugin correctly, the example scripts will print the JSON-RPC responses for the example commands sent in:
 
 ```
 $ go run go_client.go
@@ -44,7 +47,13 @@ $ go run go_client.go
 Ping: {"pong":true,"version":"0.1.0"}
 
 Project: 120 BPM, 4 tracks
+  Track 0: Melody (0.0 dB)
+  Track 1: Bass (-1.9 dB)
+  Track 2: Chords (-4.4 dB)
+  Track 3: Drums (-0.9 dB)
 
+Transport: stopped at 15.00s
+  
 Added track: {"index":4,"success":true,"track_count":5}
 ```
 
@@ -85,6 +94,11 @@ ctest --test-dir build
 The plugin binary will be at `build/reaper_reaserve.so` (Linux), `.dylib` (macOS), or `.dll` (Windows).
 
 ## Architecture
+
+Note: The timer callback processes up to 5 commands per tick
+
+![reaserve diagram](files/reaserve.png)
+
 
 ```mermaid
 graph TD

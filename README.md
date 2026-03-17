@@ -1,6 +1,6 @@
 # ReaServe
 
-A standalone C++ REAPER extension plugin that exposes REAPER's full API over TCP via JSON-RPC 2.0.
+A standalone C++ REAPER extension plugin that exposes common REAPER operations over TCP via JSON-RPC 2.0, with Lua scripting support for full API access.
 
 Control REAPER from any language — Python, Go, Node.js, Rust, or anything that can open a TCP socket.
 
@@ -13,6 +13,8 @@ Control REAPER from any language — Python, Go, Node.js, Rust, or anything that
    - **Linux:** `~/.config/REAPER/UserPlugins/`
 3. Restart REAPER
 4. You should see "ReaServe: TCP server started on port 9876" in the REAPER console
+
+![Reaper Startup Message](files/img.png)
 
 ## Configuration
 
@@ -30,11 +32,23 @@ bind=0.0.0.0
 python examples/python_client.py
 ```
 
-Or with netcat:
-
 ```bash
-echo -ne "\x00\x00\x00\x3a{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"ping\",\"params\":{}}" | nc localhost 9876
+go run examples/go_client.go
 ```
+
+If you have installed hte plugin correctly, both should print the JSON-RPC response:
+
+```
+$ go run go_client.go
+
+Ping: {"pong":true,"version":"0.1.0"}
+
+Project: 120 BPM, 4 tracks
+
+Added track: {"index":4,"success":true,"track_count":5}
+```
+
+![Reaper Undo History](files/undo-history.png)
 
 ## Protocol
 

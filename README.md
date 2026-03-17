@@ -86,16 +86,21 @@ The plugin binary will be at `build/reaper_reaserve.so` (Linux), `.dylib` (macOS
 
 ## Architecture
 
-```
-TCP Client  -->  TcpServer (background thread, per-client threads)
-                    | push PendingCommand with std::promise
-                 CommandQueue (mutex-protected deque)
-                    | try_pop() in timer callback
-                 Timer (REAPER main thread, ~30ms interval)
-                    | dispatch
-                 CommandRegistry -> Handler -> REAPER C API
-                    | promise.set_value(result)
-                 TCP thread unblocks, sends response
+```mermaid
+graph TD
+    Client([TCP Client]) <-->|JSON-RPC over TCP| Server
+    
+    subgraph Background [Background Threads]
+        Server[TcpServer<br/>per-client threads] -->|Push PendingCommand<br/>w/ std::promise| Queue[(CommandQueue<br/>mutex-protected deque)]
+    end
+
+    subgraph Main [REAPER Main Thread]
+        Timer{Timer Callback<br/>~30ms interval} -.->|try_pop| Queue
+        Timer -->|Dispatch| Registry[CommandRegistry & Handler]
+        Registry -->|Execute| API[[REAPER C API]]
+        
+        Registry -.->|promise.set_value| Server
+    end
 ```
 
 REAPER's C API is not thread-safe. All API calls happen on the main thread via a timer callback. TCP threads block on `std::future` until the main thread processes their command.

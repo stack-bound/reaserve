@@ -1,0 +1,11 @@
+build/
+cmake-build-*/
+.cache/
+.idea/
+*.o
+*.so
+*.dll
+*.dylib
+*.user
+compile_commands.json
+.ai

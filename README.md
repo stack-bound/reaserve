@@ -14,7 +14,7 @@ Control REAPER from any language — Python, Go, Node.js, Rust, or anything that
 3. Restart REAPER
 4. You should see "ReaServe: TCP server started on port 9876" in the REAPER console
 
-![Reaper Startup Message](files/img.png)
+![Reaper Startup Message](files/welcome-message.png)
 
 ## Configuration
 

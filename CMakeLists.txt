@@ -83,7 +83,9 @@ if(REASERVE_BUILD_TESTS)
         ${CMAKE_SOURCE_DIR}/vendor
         ${CMAKE_SOURCE_DIR}/src
     )
-    target_link_libraries(test_command_queue PRIVATE pthread)
+    if(UNIX)
+        target_link_libraries(test_command_queue PRIVATE pthread)
+    endif()
     add_test(NAME test_command_queue COMMAND test_command_queue)
 
     add_executable(test_framing

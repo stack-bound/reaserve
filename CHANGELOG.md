@@ -7,7 +7,7 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.1.0] - 2026-03-17
 ### Added
-- Initial Build
+- Initial Build. Artefacts are built for Linux, Windows, and macOS and published to GitHub releases.
 
 # Notes
 [Deployment] Notes for deployment

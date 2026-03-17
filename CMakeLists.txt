@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+# Generate version header from CMake project version
+configure_file(src/version.h.in "${CMAKE_BINARY_DIR}/generated/version.h")
+
 # Main plugin library
 add_library(reaper_reaserve MODULE
     src/main.cpp
@@ -32,6 +35,7 @@ target_include_directories(reaper_reaserve PRIVATE
     ${CMAKE_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/vendor
     ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_BINARY_DIR}/generated
 )
 
 set_target_properties(reaper_reaserve PROPERTIES

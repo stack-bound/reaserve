@@ -5,6 +5,7 @@
 #include "command_queue.h"
 #include "command_registry.h"
 #include "config.h"
+#include "version.h"
 #include <memory>
 #include <string>
 #include <chrono>
@@ -119,10 +120,10 @@ REAPER_PLUGIN_DLL_EXPORT int ReaperPluginEntry(
     // Start TCP server
     g_server = std::make_unique<reaserve::TcpServer>(config.bind, config.port, handle_request);
     if (g_server->start()) {
-        std::string msg = "ReaServe: TCP server started on port " + std::to_string(config.port) + "\n";
+        std::string msg = "ReaServe v" REASERVE_VERSION ": TCP server started on port " + std::to_string(config.port) + "\n";
         reaserve::api::ShowConsoleMsg(msg.c_str());
     } else {
-        std::string msg = "ReaServe: Failed to start TCP server on port " + std::to_string(config.port) + "\n";
+        std::string msg = "ReaServe v" REASERVE_VERSION ": Failed to start TCP server on port " + std::to_string(config.port) + "\n";
         reaserve::api::ShowConsoleMsg(msg.c_str());
     }
 

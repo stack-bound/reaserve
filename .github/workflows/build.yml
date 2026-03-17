@@ -37,9 +37,17 @@ jobs:
       - name: Test
         run: ctest --test-dir build --output-on-failure -C Release
 
+      - name: Find binary
+        id: binary
+        shell: bash
+        run: |
+          # MSVC puts output in build/Release/, others in build/
+          path=$(find build -name "${{ matrix.artifact }}" -type f | head -1)
+          echo "path=$path" >> "$GITHUB_OUTPUT"
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: reaper_reaserve-${{ matrix.name }}
-          path: build/${{ matrix.artifact }}
+          path: ${{ steps.binary.outputs.path }}
           if-no-files-found: warn

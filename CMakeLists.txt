@@ -43,9 +43,15 @@ set_target_properties(reaper_reaserve PROPERTIES
     OUTPUT_NAME "reaper_reaserve"
 )
 
+if(APPLE)
+    set_target_properties(reaper_reaserve PROPERTIES SUFFIX ".dylib")
+endif()
+
 target_precompile_headers(reaper_reaserve PRIVATE <nlohmann/json.hpp>)
 
 if(WIN32)
+    # Prevent windows.h from pulling in winsock.h (conflicts with winsock2.h)
+    target_compile_definitions(reaper_reaserve PRIVATE WIN32_LEAN_AND_MEAN)
     target_link_libraries(reaper_reaserve PRIVATE ws2_32)
 elseif(UNIX AND NOT APPLE)
     target_link_libraries(reaper_reaserve PRIVATE pthread)

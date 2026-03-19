@@ -88,10 +88,45 @@ Requires CMake 3.15+ and a C++17 compiler.
 ```bash
 cmake -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release
-ctest --test-dir build
 ```
 
 The plugin binary will be at `build/reaper_reaserve.so` (Linux), `.dylib` (macOS), or `.dll` (Windows).
+
+## Testing
+
+### Unit tests
+
+Unit tests run without REAPER and cover JSON-RPC framing, command queue, and message parsing:
+
+```bash
+ctest --test-dir build
+```
+
+### Integration tests
+
+Integration tests run against a live REAPER instance and exercise every method in the protocol. They require Go 1.21+.
+
+**Setup:**
+
+1. Build and install the plugin into REAPER's `UserPlugins/` directory
+2. Open REAPER with a **new, blank project** (no tracks, items, or markers)
+3. Confirm ReaServe is running (you should see the startup message in the console)
+
+**Run:**
+
+```bash
+cd tests/integration && go test -tags integration -v -count=1 .
+```
+
+To connect to a non-default address:
+
+```bash
+cd tests/integration && REASERVE_ADDR=192.168.1.10:9876 go test -tags integration -v -count=1 .
+```
+
+The tests create tracks, items, FX, MIDI notes, markers, sends, and envelope points — then clean everything up, leaving the project blank. Every method in [PROTOCOL.md](PROTOCOL.md) is covered.
+
+The `integration` build tag ensures these tests are **never** picked up by normal `go test` runs or CI — they only compile and run when explicitly requested.
 
 ## Architecture
 

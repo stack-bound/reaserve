@@ -129,6 +129,12 @@ extern void (*Undo_EndBlock)(const char* descchange, int extraflags);
 extern void (*UpdateArrange)();
 extern void (*UpdateTimeline)();
 
+// ExtState (in-memory key-value store)
+extern void (*SetExtState)(const char* section, const char* key, const char* value, bool persist);
+extern const char* (*GetExtState)(const char* section, const char* key);
+extern bool (*HasExtState)(const char* section, const char* key);
+extern void (*DeleteExtState)(const char* section, const char* key, bool persist);
+
 // Resolve all function pointers from REAPER's plugin info
 // Returns false if critical functions are missing
 bool resolve_api(reaper_plugin_info_t* rec);

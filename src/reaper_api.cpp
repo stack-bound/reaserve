@@ -117,6 +117,12 @@ void (*Undo_EndBlock)(const char* descchange, int extraflags) = nullptr;
 void (*UpdateArrange)() = nullptr;
 void (*UpdateTimeline)() = nullptr;
 
+// ExtState
+void (*SetExtState)(const char* section, const char* key, const char* value, bool persist) = nullptr;
+const char* (*GetExtState)(const char* section, const char* key) = nullptr;
+bool (*HasExtState)(const char* section, const char* key) = nullptr;
+void (*DeleteExtState)(const char* section, const char* key, bool persist) = nullptr;
+
 #define RESOLVE(name) *(void**)&name = rec->GetFunc(#name)
 #define REQUIRE(name) RESOLVE(name); if (!name) return false
 
@@ -228,6 +234,12 @@ bool resolve_api(reaper_plugin_info_t* rec) {
     RESOLVE(Undo_EndBlock);
     RESOLVE(UpdateArrange);
     RESOLVE(UpdateTimeline);
+
+    // ExtState
+    RESOLVE(SetExtState);
+    RESOLVE(GetExtState);
+    RESOLVE(HasExtState);
+    RESOLVE(DeleteExtState);
 
     return true;
 }

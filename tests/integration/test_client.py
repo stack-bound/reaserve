@@ -184,6 +184,33 @@ def main():
 
     test("transport.set_cursor", test_set_cursor)
 
+    # lua.execute_and_read — happy path
+    def test_lua_execute_and_read():
+        code = 'reaserve_output(\'{"hello": "world", "num": 42}\')'
+        result = client.call("lua.execute_and_read", {"code": code})
+        assert result["hello"] == "world"
+        assert result["num"] == 42
+
+    test("lua.execute_and_read", test_lua_execute_and_read)
+
+    # lua.execute_and_read — Lua error is captured
+    def test_lua_execute_and_read_error():
+        code = 'error("something went wrong")'
+        result = client.call("lua.execute_and_read", {"code": code})
+        assert "__error" in result
+        assert "something went wrong" in result["__error"]["message"]
+
+    test("lua.execute_and_read error", test_lua_execute_and_read_error)
+
+    # lua.execute_and_read — no reaserve_output() call
+    def test_lua_execute_and_read_no_output():
+        code = "local x = 1 + 1"
+        result = client.call("lua.execute_and_read", {"code": code})
+        assert "__error" in result
+        assert "reaserve_output" in result["__error"]["message"]
+
+    test("lua.execute_and_read no output", test_lua_execute_and_read_no_output)
+
     # Item list
     def test_item_list():
         result = client.call("item.list")

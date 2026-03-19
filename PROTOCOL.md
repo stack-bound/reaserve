@@ -83,15 +83,38 @@ Execute arbitrary Lua code in REAPER.
 
 ### `lua.execute_and_read`
 
-Execute Lua code that writes JSON to a file, then return the file contents.
+Execute Lua code and return the output. The Lua code must call `reaserve_output(json_string)` to pass data back. Lua runtime errors are captured and returned as error responses.
 
 **Params:**
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `code` | string | yes | Lua source code (should write JSON to `state_path`) |
-| `state_path` | string | yes | Path where Lua writes its output |
+| `code` | string | yes | Lua source code (must call `reaserve_output()` with a JSON string) |
 
-**Result:** The parsed JSON from the state file.
+**Result:** The parsed JSON from `reaserve_output()`. If the output is not valid JSON, it is returned as `{"raw": "<output>"}`.
+
+**Errors:**
+- `-32603` — Lua runtime error (message includes the Lua error)
+- `-32603` — Script did not call `reaserve_output()`
+
+**Example:**
+```json
+{
+  "jsonrpc": "2.0", "id": 1,
+  "method": "lua.execute_and_read",
+  "params": {
+    "code": "local info = {bpm = 120}\nreaserve_output(reaper.json_encode and reaper.json_encode(info) or '{\"bpm\": 120}')"
+  }
+}
+```
+
+**Client implementation notes:**
+
+The `code` value is a JSON string that is decoded and written to a `.lua` file verbatim. This means:
+
+- **Newlines must be JSON-escaped.** Literal newlines are invalid inside JSON strings. Use `\n` in the JSON value, or rely on your language's JSON encoder to handle this automatically (most do).
+- **Double quotes inside Lua code must be JSON-escaped.** For example, `reaper.ShowConsoleMsg("hello")` must be sent as `reaper.ShowConsoleMsg(\"hello\")` in the raw JSON. Again, a JSON encoder handles this — just pass the Lua code as a native string and let the encoder do the escaping.
+- **Prefer Lua single quotes or `[[ ]]` long brackets** to avoid fighting with JSON double-quote escaping. `reaper.ShowConsoleMsg('hello')` is easier to read and construct than the double-escaped equivalent.
+- **`lua.execute_and_read` wraps your code in `pcall(function() ... end)`.** This is transparent — your code runs in a new scope but has full access to all globals (`reaper`, etc.). The only visible effect is that `reaserve_output` and the names `__ok`/`__err` are defined in the outer scope. Avoid shadowing these.
 
 ---
 

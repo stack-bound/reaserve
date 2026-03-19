@@ -4,19 +4,31 @@
 
 - CMake 3.15+
 - C++17 compiler (GCC 7+, Clang 5+, MSVC 2017+)
+- Go 1.21+ (for integration tests only)
+
+## Quick Start
+
+```bash
+make            # Build release
+make test       # Build + run unit tests
+make install    # Copy plugin to REAPER UserPlugins directory
+```
+
+Run `make help` to see all targets.
 
 ## Building
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release
+make              # Release build
+make debug        # Debug build
+make rebuild      # Clean + release build
 ```
 
-For a debug build:
+Or using CMake directly:
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build --config Debug
+cmake -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release
 ```
 
 The plugin binary is output as:
@@ -24,15 +36,36 @@ The plugin binary is output as:
 - macOS: `build/reaper_reaserve.dylib`
 - Windows: `build/reaper_reaserve.dll`
 
+## Installing
+
+```bash
+make install
+```
+
+This copies the plugin to your REAPER `UserPlugins/` directory. Override the path with:
+
+```bash
+make install USERPLUGINS=/path/to/UserPlugins
+```
+
+Restart REAPER after installing to load the updated plugin.
+
 ## Running Tests
+
+### Unit tests
 
 Tests use plain `assert()` — no external test framework required.
 
 ```bash
-# Run all tests via CTest
+make test
+```
+
+Or directly:
+
+```bash
 ctest --test-dir build --output-on-failure
 
-# Or run individual test binaries directly
+# Individual test binaries
 ./build/test_json_rpc
 ./build/test_command_queue
 ./build/test_framing
@@ -43,6 +76,38 @@ To disable building tests:
 ```bash
 cmake -B build -DREASERVE_BUILD_TESTS=OFF
 ```
+
+### Integration tests
+
+Integration tests run every method in [PROTOCOL.md](PROTOCOL.md) against a live REAPER instance. They require Go 1.21+.
+
+**Setup:**
+
+1. Build and install the plugin (`make install`)
+2. Open REAPER with a **new, blank project** (no tracks, items, or markers)
+3. Confirm ReaServe is running (startup message in the console)
+
+**Run:**
+
+```bash
+make test-integration
+```
+
+Or directly:
+
+```bash
+cd tests/integration && go test -tags integration -v -count=1 .
+```
+
+To connect to a non-default address:
+
+```bash
+REASERVE_ADDR=192.168.1.10:9876 make test-integration
+```
+
+The tests create tracks, items, FX, MIDI notes, markers, sends, and envelope points — then clean everything up, leaving the project blank.
+
+The `integration` build tag ensures these tests are never compiled during normal `go test` runs or CI.
 
 ## Versioning
 

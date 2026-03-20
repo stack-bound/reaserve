@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [staging]
+
+
+
+## [0.1.2] - 2026-03-19
 ### Added
 - REAPER ExtState API bindings (`SetExtState`, `GetExtState`, `HasExtState`, `DeleteExtState`).
 - Go integration test suite (`tests/integration/reaserve_test.go`) that exercises every method in PROTOCOL.md against a live REAPER instance. Uses `//go:build integration` tag so it is never picked up by normal `go test` runs.
@@ -12,8 +16,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 - **Breaking:** `lua.execute_and_read` no longer requires `state_path` parameter. Lua code must now call `reaserve_output(json_string)` to return data instead of writing to a file. The file-based result passing mechanism has been replaced with REAPER's in-memory ExtState API (`SetExtState`/`GetExtState`).
 - User Lua code in `lua.execute_and_read` is now wrapped in `pcall()` — Lua runtime errors are captured and returned in the JSON-RPC error response instead of being silently swallowed.
 - Updated PROTOCOL.md to reflect new `lua.execute_and_read` interface and document `reaserve_output()`.
-
-
 
 ## [0.1.1] - 2026-03-17
 ### Fixed
